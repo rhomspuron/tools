@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Uso:
+  clone_repo_443.sh <url_del_repo>
+  clone_repo_443.sh --print <url_del_repo>
+
+Ejemplos:
+  clone_repo_443.sh https://gitlab.com/sardana-org/sardana.git
+  clone_repo_443.sh https://github.com/octocat/Hello-World.git
+  clone_repo_443.sh git@gitlab.com:sardana-org/sardana.git
+  clone_repo_443.sh git@github.com:octocat/Hello-World.git
+  clone_repo_443.sh --print https://github.com/octocat/Hello-World
+EOF
+}
+
+error() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+require_cmd() {
+  command -v "$1" >/dev/null 2>&1 || error "No se encontró el comando requerido: $1"
+}
+
+normalize_repo_url() {
+  local input="$1"
+  local repo_path=""
+  local provider=""
+
+  # Limpiar espacios
+  input="$(printf '%s' "$input" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+
+  case "$input" in
+    https://gitlab.com/*)
+      provider="gitlab"
+      repo_path="${input#https://gitlab.com/}"
+      ;;
+    http://gitlab.com/*)
+      provider="gitlab"
+      repo_path="${input#http://gitlab.com/}"
+      ;;
+    git@gitlab.com:*)
+      provider="gitlab"
+      repo_path="${input#git@gitlab.com:}"
+      ;;
+    ssh://git@gitlab.com/*)
+      provider="gitlab"
+      repo_path="${input#ssh://git@gitlab.com/}"
+      ;;
+    ssh://git@altssh.gitlab.com:443/*)
+      provider="gitlab"
+      repo_path="${input#ssh://git@altssh.gitlab.com:443/}"
+      ;;
+
+    https://github.com/*)
+      provider="github"
+      repo_path="${input#https://github.com/}"
+      ;;
+    http://github.com/*)
+      provider="github"
+      repo_path="${input#http://github.com/}"
+      ;;
+    git@github.com:*)
+      provider="github"
+      repo_path="${input#git@github.com:}"
+      ;;
+    ssh://git@github.com/*)
+      provider="github"
+      repo_path="${input#ssh://git@github.com/}"
+      ;;
+    ssh://git@ssh.github.com:443/*)
+      provider="github"
+      repo_path="${input#ssh://git@ssh.github.com:443/}"
+      ;;
+
+    *)
+      error "Formato de URL no soportado: $input"
+      ;;
+  esac
+
+  # Quitar barra final si existe
+  repo_path="${repo_path%/}"
+
+  # Añadir .git si falta
+  if [[ "$repo_path" != *.git ]]; then
+    repo_path="${repo_path}.git"
+  fi
+
+  # Validación mínima: owner/repo.git o grupo/subgrupo/repo.git
+  if [[ ! "$repo_path" =~ ^[^/]+/.+\.git$ ]]; then
+    error "La ruta del repositorio no parece válida: $repo_path"
+  fi
+
+  case "$provider" in
+    gitlab)
+      printf 'ssh://git@altssh.gitlab.com:443/%s\n' "$repo_path"
+      ;;
+    github)
+      printf 'ssh://git@ssh.github.com:443/%s\n' "$repo_path"
+      ;;
+    *)
+      error "Proveedor no soportado"
+      ;;
+  esac
+}
+
+main() {
+  require_cmd git
+
+  if [[ $# -lt 1 || $# -gt 2 ]]; then
+    usage
+    exit 1
+  fi
+
+  local print_only="false"
+  local input_url=""
+
+  if [[ "$1" == "--print" ]]; then
+    [[ $# -eq 2 ]] || error "Uso: $0 --print <url_del_repo>"
+    print_only="true"
+    input_url="$2"
+  else
+    [[ $# -eq 1 ]] || error "Uso: $0 <url_del_repo>"
+    input_url="$1"
+  fi
+
+  local ssh_url
+  ssh_url="$(normalize_repo_url "$input_url")"
+
+  if [[ "$print_only" == "true" ]]; then
+    echo "$ssh_url"
+    exit 0
+  fi
+
+  echo "Clonando desde:"
+  echo "  $ssh_url"
+  git clone "$ssh_url"
+}
+
+main "$@"
