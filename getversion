@@ -1,0 +1,3 @@
+# /bin/bash
+
+python -c "import setuptools_scm; print(setuptools_scm.get_version())"
