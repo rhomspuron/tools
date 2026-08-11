@@ -1,0 +1,48 @@
+version = 1
+
+[envs.pyenv]
+channels = ["conda-forge"]
+dependencies = { python = "*", ipython = "*" , numpy = "*", pytango = "*", setuptools-scm = "*", python-build = "*" }
+exposed = { idle3 = "idle3", "idle3.14" = "idle3.14", pydoc = "pydoc", pydoc3 = "pydoc3", "pydoc3.14" = "pydoc3.14", python = "python", python3 = "python3", python3-config = "python3-config", "python3.1" = "python3.1", "python3.14" = "python3.14", "python3.14-config" = "python3.14-config", ipython = "ipython", ipython3 = "ipython3" }
+
+[envs.tango-client]
+channels = ["conda-forge"]
+dependencies = { jive = "*", tango-astor = "*" }
+exposed = { jive = "jive", astor = "astor" }
+
+[envs.pydb]
+channels = ["conda-forge"]
+dependencies = { pytango-db = "*" }
+exposed = { PyDatabaseds = "PyDatabaseds" }
+
+[envs.sar]
+channels = ["conda-forge"]
+dependencies = { sardana = "*", matplotlib = "*", taurus_pyqtgraph = "*", numpy = "*", sardana-adlink = "*", sardana-ni660x = "*" }
+exposed = { f2py = "f2py", numpy-config = "numpy-config", Sardana = "Sardana" , taurus = "taurus" , spock = "spock", sardanactl = "sardanactl" }
+
+[envs.ruff]
+channels = ["conda-forge"]
+dependencies = { ruff = "*" }
+exposed = { ruff = "ruff" }
+
+[envs.bumpversion]
+channels = ["conda-forge"]
+dependencies = { bumpversion = "*" , python = "3.11.*"}
+exposed = { bumpversion = "bumpversion" }
+
+[envs.nodejs]
+channels = ["http://condarepos.cells.es/get/alba-controls", "conda-forge", "esrf-bcu"]
+dependencies = { nodejs = "*" }
+exposed = { node = "node", npm = "npm", npx = "npx" }
+
+[envs.rattler]
+channels = ["conda-forge","http://condarepos.cells.es/get/alba-controls", "esrf-bcu"]
+dependencies = { rattler = "*" , conda-recipe-manager = "*", grayskull = "*", rattler-build = "*" }
+exposed = { rattler = "rattler", grayskull = "grayskull", rattler-build = "rattler-build" }
+
+[envs.quetz]
+channels = ["http://condarepos.cells.es/get/alba-controls", "conda-forge", "esrf-bcu"]
+dependencies = { quetz-client = "*"  }
+exposed = { quetz-client = "quetz-client" }
+
+
